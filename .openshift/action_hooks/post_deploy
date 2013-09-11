@@ -1,0 +1,16 @@
+#!/bin/bash
+# This is a simple post deploy hook executed after your application 
+# is deployed and started.  This script gets executed directly, so 
+# it could be python, php, ruby, etc.
+
+#
+## Liferay Portal deployment directory, its the core portal and not the plugins
+#
+
+_LIFERAY_PORTAL_DEPLOYED=`head -1 ${OPENSHIFT_DATA_DIR}/deployed-war-info`
+
+_LIFERAY_PORTAL_DEPLOY_DIR="${OPENSHIFT_DATA_DIR}liferay"
+
+echo "Trigger deployment for : ${_LIFERAY_PORTAL_DEPLOY_DIR}/${_LIFERAY_PORTAL_DEPLOYED}.dodeploy"
+
+touch ${_LIFERAY_PORTAL_DEPLOY_DIR}/${_LIFERAY_PORTAL_DEPLOYED}.dodeploy
