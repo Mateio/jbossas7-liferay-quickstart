@@ -47,7 +47,7 @@ Add this upstream jbossas7-liferay-quickstart repo
 --------------------------------------------------
 
         cd $Your-App-Name
-        git remote add upstream -m master https://github.com/mateio/jbossas7-liferay-quickstart
+        git remote add upstream -m master https://github.com/mateio/jbossas7-liferay-quickstart.git
         git pull -s recursive -X theirs upstream master
 
   Then push the repo to your openshift cloud repo dir
