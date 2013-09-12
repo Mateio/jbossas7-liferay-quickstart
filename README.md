@@ -36,7 +36,8 @@ Create a JBoss AS 7.1 or JBoss EAP 6.0 server
 Add DB Web Console to your application
 --------------------------------------
           rhc cartridge add -a $Your-App-Name -c phpmyadmin-3.4 (optional)
-	  note : there is no Postgresql web console yet available on openshift.com. Use ssh tunneling to administer the DB remotely
+	  note : there is no Postgresql web console yet available on openshift.com. 
+	         You may use ssh tunneling to administer the DB remotely
 		
 Application Info
 ----------------
@@ -98,11 +99,11 @@ during the application creation.
 
 This is configured in the $REPO_DIR/customization/ROOT.war/WEB-INF/classes/portal-ext.properties entry,
 	
-	jdbc.default.jndi.name=java:jboss/datasources/MysqlDS
-		
-If you want to change it to Postgresql then you need to update the $REPO_DIR/customization/ROOT.war/WEB-INF/classes/portal-ext.properties
-
 	jdbc.default.jndi.name=java:jboss/datasources/PostgreSQLDS
+		
+If you want to change it to Mysql then you need to update the $REPO_DIR/customization/ROOT.war/WEB-INF/classes/portal-ext.properties
+
+	jdbc.default.jndi.name=java:jboss/datasources/MysqlDS
 
 __Note__ : 
 
