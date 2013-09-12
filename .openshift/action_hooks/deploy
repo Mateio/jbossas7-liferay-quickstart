@@ -20,11 +20,11 @@ fi
 
 RETRY=60
 while [ $RETRY -gt 0 ] ; do
-    #reload env variables
-    for env_var in  $OPENSHIFT_HOMEDIR/.env/*
-    do
-        . $env_var
-    done
+#     #reload env variables
+#     for env_var in  $OPENSHIFT_HOMEDIR/.env/*
+#     do
+#         . $env_var
+#     done
 
     #check for db
     if [ -n "$OPENSHIFT_POSTGRESQL_DB_HOST" ] || [ -n "$OPENSHIFT_MYSQL_DB_HOST" ]
