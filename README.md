@@ -135,9 +135,3 @@ and re-push.
        
 The deploy script will then automatically pull the Liferay Portal war file from the sourceforge site and explode the same over the liferay-portal-6.1.1-ce-ga2-xxxxxx.war
 
-
-Upcoming features
-----------------
-
-* Standard maven based directory structure for the application and maven deployment
-
