@@ -2,7 +2,7 @@ Liferay on OpenShift
 ===================
 
 This git repository helps you get up and running quickly with Liferay Portal installation
-on OpenShift.  
+on OpenShift. It fixes a few glitches in the original quickstart by kameshsampath
 
 By default the backend database is MySQL/Postgresql and the database name is the
 same as your application name (using $_ENV['OPENSHIFT_APP_NAME']).  You can name
@@ -23,19 +23,20 @@ Create a JBoss AS 7.1 or JBoss EAP 6.0 server
 
         rhc app create -a $Your-App-Name -t jbossas-7  mysql-5.1 -g medium
 
-        rhc app create -a $Your-App-Name -t jbossas-7  postgresql-8.4  -g medium
+        rhc app create -a $Your-App-Name -t jbossas-7  postgresql-9.2  -g medium
 	                    
       **`JBoss EAP 6.0`**
 
         rhc app create -a $Your-App-Name -t jbosseap-6.0 mysql-5.1 -g medium
 	
-        rhc app create -a $Your-App-Name -t jbosseap-6.0 postgresql-8.4  -g medium
+        rhc app create -a $Your-App-Name -t jbosseap-6.0 postgresql-9.2  -g medium
     
 * Note: For deploying Liferay, the application max heap size should be set to 512m or above which is available only from medium and above gears, for more info check https://openshift.redhat.com/community/developers/pricing
 	
 Add DB Web Console to your application
 --------------------------------------
           rhc cartridge add -a $Your-App-Name -c phpmyadmin-3.4 (optional)
+	  note : there is no Postgresql web console yet available on openshift.com. Use ssh tunneling to administer the DB remotely
 		
 Application Info
 ----------------
@@ -45,7 +46,7 @@ Add this upstream jbossas7-liferay-quickstart repo
 --------------------------------------------------
 
         cd $Your-App-Name
-        git remote add upstream -m master git://github.com/kameshsampath/jbossas7-liferay-quickstart
+        git remote add upstream -m master https://github.com/mateio/jbossas7-liferay-quickstart
         git pull -s recursive -X theirs upstream master
 
   Then push the repo to your openshift cloud repo dir
