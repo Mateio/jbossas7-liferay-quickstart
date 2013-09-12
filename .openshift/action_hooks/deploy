@@ -79,7 +79,7 @@ if [ "5432" = "$OPENSHIFT_POSTGRESQL_DB_PORT" ]
     echo
     echo "Database '$OPENSHIFT_APP_NAME' found, importing 'portal-minimal-postgresql.sql' into database '$OPENSHIFT_APP_NAME'."
     echo
-    /usr/bin/psql -q -U "$OPENSHIFT_POSTGRESQL_DB_USERNAME" -w "$OPENSHIFT_POSTGRESQL_DB_PASSWORD" -h "$OPENSHIFT_POSTGRESQL_DB_HOST" -d "$OPENSHIFT_APP_NAME" -f "$OPENSHIFT_REPO_DIR/portal-minimal-postgresql.sql"
+    /usr/bin/psql -q -U "$OPENSHIFT_POSTGRESQL_DB_USERNAME" -w "$OPENSHIFT_POSTGRESQL_DB_PASSWORD" -h "$OPENSHIFT_POSTGRESQL_DB_HOST" -d "$OPENSHIFT_APP_NAME" -f "$OPENSHIFT_REPO_DIR/.openshift/action_hooks/portal-minimal-postgresql.sql"
     echo
     echo "done."
     echo "======================================================================================="
