@@ -74,7 +74,7 @@ fi
 #
 if [ "5432" = "$OPENSHIFT_POSTGRESQL_DB_PORT" ]
  then
-  if ! /usr/bin/psql -U "$OPENSHIFT_POSTGRESQL_DB_USERNAME" -w "$OPENSHIFT_POSTGRESQL_DB_PASSWORD" -h "$OPENSHIFT_POSTGRESQL_DB_HOST" -c "select * from $OPENSHIFT_APP_NAME.Account_" > /dev/null 2>&1
+  if ! /usr/bin/psql -q -U "$OPENSHIFT_POSTGRESQL_DB_USERNAME" -w "$OPENSHIFT_POSTGRESQL_DB_PASSWORD" -h "$OPENSHIFT_POSTGRESQL_DB_HOST" -d "$OPENSHIFT_APP_NAME" -c "select * from Account_" > /dev/null 2>&1
    then
     echo
     echo "Database '$OPENSHIFT_APP_NAME' found, importing 'portal-minimal-postgresql.sql' into database '$OPENSHIFT_APP_NAME'."
