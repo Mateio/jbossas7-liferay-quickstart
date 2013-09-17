@@ -113,7 +113,7 @@ The datasources name could be changed by updting the file $APP_NAME/.openshift/c
 Upgrade the Portal
 ------------------
 
-Right now the quick start supports only **Liferay Portal 6.1.1-CE.GA2**
+Right now the quick start supports only **Liferay Portal 6.1.2-CE.GA3**
 
 In order to update or upgrade to the latest liferay portal, you'll need to re-pull
 and re-push.
@@ -127,12 +127,12 @@ and re-push.
         Push the new changes upstream
         -----------------------------
 
-        Update the file and modify the first line with correct war file name that will be used for upgrade default is liferay-portal-6.1.1-ce-ga2-20120731132656558.war, but during update you will change this to something like liferay-portal-6.1.1-ce-ga2-xxxxxxxxx.war
+        Update the file and modify the first line with correct war file name that will be used for upgrade default is liferay-portal-6.1.2-ce-ga3-20130816114619181.war, but during update you will change this to something like liferay-portal-6.1.1-ce-ga2-xxxxxxxxx.war
  
         .openshift/action_hooks/deploying-war-info - the war file of liferay that will be deployed
 
          git push
 
        
-The deploy script will then automatically pull the Liferay Portal war file from the sourceforge site and explode the same over the liferay-portal-6.1.1-ce-ga2-xxxxxx.war
+The deploy script will then automatically pull the Liferay Portal war file from the sourceforge site and explode the same over the liferay-portal-6.1.2-ce-ga3-xxxxxx.war
 
