@@ -21,15 +21,15 @@ Create a JBoss AS 7.1 or JBoss EAP 6.0 server
 
       **`JBoss AS 7.1`**
 
-        rhc app create -a $Your-App-Name -t jbossas-7  mysql-5.1 -g medium
+        rhc app create $Your-App-Name jbossas-7 mysql-5.1 -g medium
 
-        rhc app create -a $Your-App-Name -t jbossas-7  postgresql-9.2  -g medium
+        rhc app create $Your-App-Name jbossas-7 postgresql-9.2 -g medium
 
       **`JBoss EAP 6.0`**
 
-        rhc app create -a $Your-App-Name -t jbosseap-6.0 mysql-5.1 -g medium
+        rhc app create $Your-App-Name jbosseap-6.0 mysql-5.1 -g medium
 
-        rhc app create -a $Your-App-Name -t jbosseap-6.0 postgresql-9.2  -g medium
+        rhc app create $Your-App-Name jbosseap-6.0 postgresql-9.2 -g medium
 
 * Note: For deploying Liferay, the application max heap size should be set to 512m or above which is available only from medium and above gears, for more info check https://openshift.redhat.com/community/developers/pricing
 
@@ -115,7 +115,7 @@ The datasources name could be changed by updting the file $APP_NAME/.openshift/c
 Upgrade the Portal
 ------------------
 
-Right now the quick start supports only **Liferay Portal 6.1.2-CE.GA3**
+Right now the quick start supports only **Liferay Portal 6.2.1-CE.GA2**
 
 In order to update or upgrade to the latest liferay portal, you'll need to re-pull
 and re-push.
