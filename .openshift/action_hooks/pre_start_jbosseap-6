@@ -16,4 +16,4 @@
 #
 ## This is bare minimum heap size that is required to run Liferay, increase it to suit your gear size
 #
-export JAVA_OPTS=" -server -Xmx664m -XX:MaxPermSize=256m -XX:+AggressiveOpts -Dorg.apache.tomcat.util.LOW_MEMORY=true -Dorg.jboss.resolver.warning=true -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -Djava.net.preferIPv4Stack=true -Djboss.node.name=${OPENSHIFT_GEAR_DNS} -Djgroups.bind_addr=${OPENSHIFT_INTERNAL_IP}"
+export JAVA_OPTS=" -server -Xmx664m -XX:MaxPermSize=256m -XX:+AggressiveOpts -Dorg.apache.tomcat.util.LOW_MEMORY=true -Dorg.jboss.resolver.warning=true -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -Djava.net.preferIPv4Stack=true -Djboss.node.name=${OPENSHIFT_GEAR_DNS} -Djgroups.bind_addr=${OPENSHIFT_INTERNAL_IP} -Dliferay.home=${OPENSHIFT_DATA_DIR}"

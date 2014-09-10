@@ -1,5 +1,5 @@
 #!/bin/bash
-# This is a simple build script and will be executed on your CI system if 
+# This is a simple build script and will be executed on your CI system if
 # available.  Otherwise it will execute while your application is stopped
 # before the deploy step.  This script gets executed directly, so it
 # could be python, php, ruby, etc.
@@ -52,7 +52,7 @@ if [ "$_LIFERAY_PORTAL_DEPLOYING" = "$_LIFERAY_PORTAL_DEPLOYED" ]
    echo "Downloading Liferay Portal : ${_LIFERAY_PORTAL_DEPLOYING}"
    cd ${OPENSHIFT_TMP_DIR}
    #Downlad the war
-   wget -O ${_LIFERAY_PORTAL_DEPLOYING}  -v "http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.1.2%20GA3/${_LIFERAY_PORTAL_DEPLOYING}"
+   wget -O ${_LIFERAY_PORTAL_DEPLOYING}  -v "http://sourceforge.net/projects/lportal/files/Liferay%20Portal/6.2.1%20GA2/${_LIFERAY_PORTAL_DEPLOYING}"
    cd ${_LIFERAY_PORTAL_DEPLOY_DIR}/${_LIFERAY_PORTAL_DEPLOYING}
    if [ -f ${OPENSHIFT_TMP_DIR}/${_LIFERAY_PORTAL_DEPLOYING} ]
     then

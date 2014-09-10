@@ -18,6 +18,7 @@ create table Account_ (
 ) engine InnoDB;
 
 create table Address (
+	uuid_ varchar(75) null,
 	addressId bigint not null primary key,
 	companyId bigint,
 	userId bigint,
@@ -107,9 +108,9 @@ create table AssetCategoryProperty (
 ) engine InnoDB;
 
 create table AssetEntries_AssetCategories (
-	entryId bigint not null,
 	categoryId bigint not null,
-	primary key (entryId, categoryId)
+	entryId bigint not null,
+	primary key (categoryId, entryId)
 ) engine InnoDB;
 
 create table AssetEntries_AssetTags (
@@ -205,6 +206,24 @@ create table AssetVocabulary (
 	settings_ longtext null
 ) engine InnoDB;
 
+create table BackgroundTask (
+	backgroundTaskId bigint not null primary key,
+	groupId bigint,
+	companyId bigint,
+	userId bigint,
+	userName varchar(75) null,
+	createDate datetime null,
+	modifiedDate datetime null,
+	name varchar(75) null,
+	servletContextNames varchar(255) null,
+	taskExecutorClassName varchar(200) null,
+	taskContext longtext null,
+	completed tinyint,
+	completionDate datetime null,
+	status integer,
+	statusMessage longtext null
+) engine InnoDB;
+
 create table BlogsEntry (
 	uuid_ varchar(75) null,
 	entryId bigint not null primary key,
@@ -216,7 +235,7 @@ create table BlogsEntry (
 	modifiedDate datetime null,
 	title varchar(150) null,
 	urlTitle varchar(150) null,
-	description varchar(75) null,
+	description longtext null,
 	content longtext null,
 	displayDate datetime null,
 	allowPingbacks tinyint,
@@ -254,11 +273,16 @@ create table BookmarksEntry (
 	modifiedDate datetime null,
 	resourceBlockId bigint,
 	folderId bigint,
+	treePath longtext null,
 	name varchar(255) null,
 	url longtext null,
 	description longtext null,
 	visits integer,
-	priority integer
+	priority integer,
+	status integer,
+	statusByUserId bigint,
+	statusByUserName varchar(75) null,
+	statusDate datetime null
 ) engine InnoDB;
 
 create table BookmarksFolder (
@@ -272,8 +296,13 @@ create table BookmarksFolder (
 	modifiedDate datetime null,
 	resourceBlockId bigint,
 	parentFolderId bigint,
+	treePath longtext null,
 	name varchar(75) null,
-	description longtext null
+	description longtext null,
+	status integer,
+	statusByUserId bigint,
+	statusByUserName varchar(75) null,
+	statusDate datetime null
 ) engine InnoDB;
 
 create table BrowserTracker (
@@ -340,8 +369,11 @@ create table Contact_ (
 	userName varchar(75) null,
 	createDate datetime null,
 	modifiedDate datetime null,
+	classNameId bigint,
+	classPK bigint,
 	accountId bigint,
 	parentContactId bigint,
+	emailAddress varchar(75) null,
 	firstName varchar(75) null,
 	middleName varchar(75) null,
 	lastName varchar(75) null,
@@ -475,6 +507,7 @@ create table DDMStructure (
 	userName varchar(75) null,
 	createDate datetime null,
 	modifiedDate datetime null,
+	parentStructureId bigint,
 	classNameId bigint,
 	structureKey varchar(75) null,
 	name longtext null,
@@ -500,13 +533,19 @@ create table DDMTemplate (
 	userName varchar(75) null,
 	createDate datetime null,
 	modifiedDate datetime null,
-	structureId bigint,
+	classNameId bigint,
+	classPK bigint,
+	templateKey varchar(75) null,
 	name longtext null,
 	description longtext null,
 	type_ varchar(75) null,
 	mode_ varchar(75) null,
 	language varchar(75) null,
-	script longtext null
+	script longtext null,
+	cacheable tinyint,
+	smallImage tinyint,
+	smallImageId bigint,
+	smallImageURL varchar(75) null
 ) engine InnoDB;
 
 create table DLContent (
@@ -527,12 +566,13 @@ create table DLFileEntry (
 	companyId bigint,
 	userId bigint,
 	userName varchar(75) null,
-	versionUserId bigint,
-	versionUserName varchar(75) null,
 	createDate datetime null,
 	modifiedDate datetime null,
+	classNameId bigint,
+	classPK bigint,
 	repositoryId bigint,
 	folderId bigint,
+	treePath longtext null,
 	name varchar(255) null,
 	extension varchar(75) null,
 	mimeType varchar(75) null,
@@ -546,7 +586,8 @@ create table DLFileEntry (
 	smallImageId bigint,
 	largeImageId bigint,
 	custom1ImageId bigint,
-	custom2ImageId bigint
+	custom2ImageId bigint,
+	manualCheckInRequired tinyint
 ) engine InnoDB;
 
 create table DLFileEntryMetadata (
@@ -568,14 +609,15 @@ create table DLFileEntryType (
 	userName varchar(75) null,
 	createDate datetime null,
 	modifiedDate datetime null,
-	name varchar(75) null,
+	fileEntryTypeKey varchar(75) null,
+	name longtext null,
 	description longtext null
 ) engine InnoDB;
 
 create table DLFileEntryTypes_DDMStructures (
-	fileEntryTypeId bigint not null,
 	structureId bigint not null,
-	primary key (fileEntryTypeId, structureId)
+	fileEntryTypeId bigint not null,
+	primary key (structureId, fileEntryTypeId)
 ) engine InnoDB;
 
 create table DLFileEntryTypes_DLFolders (
@@ -590,7 +632,8 @@ create table DLFileRank (
 	companyId bigint,
 	userId bigint,
 	createDate datetime null,
-	fileEntryId bigint
+	fileEntryId bigint,
+	active_ tinyint
 ) engine InnoDB;
 
 create table DLFileShortcut (
@@ -605,6 +648,8 @@ create table DLFileShortcut (
 	repositoryId bigint,
 	folderId bigint,
 	toFileEntryId bigint,
+	treePath longtext null,
+	active_ tinyint,
 	status integer,
 	statusByUserId bigint,
 	statusByUserName varchar(75) null,
@@ -623,6 +668,7 @@ create table DLFileVersion (
 	repositoryId bigint,
 	folderId bigint,
 	fileEntryId bigint,
+	treePath longtext null,
 	extension varchar(75) null,
 	mimeType varchar(75) null,
 	title varchar(255) null,
@@ -632,6 +678,7 @@ create table DLFileVersion (
 	fileEntryTypeId bigint,
 	version varchar(75) null,
 	size_ bigint,
+	checksum varchar(75) null,
 	status integer,
 	statusByUserId bigint,
 	statusByUserName varchar(75) null,
@@ -650,30 +697,29 @@ create table DLFolder (
 	repositoryId bigint,
 	mountPoint tinyint,
 	parentFolderId bigint,
+	treePath longtext null,
 	name varchar(100) null,
 	description longtext null,
 	lastPostDate datetime null,
 	defaultFileEntryTypeId bigint,
-	overrideFileEntryTypes tinyint
+	hidden_ tinyint,
+	overrideFileEntryTypes tinyint,
+	status integer,
+	statusByUserId bigint,
+	statusByUserName varchar(75) null,
+	statusDate datetime null
 ) engine InnoDB;
 
-create table DLSync (
-	syncId bigint not null primary key,
-	companyId bigint,
-	createDate datetime null,
-	modifiedDate datetime null,
-	fileId bigint,
-	fileUuid varchar(75) null,
-	repositoryId bigint,
-	parentFolderId bigint,
-	name varchar(255) null,
-	description longtext null,
+create table DLSyncEvent (
+	syncEventId bigint not null primary key,
+	modifiedTime bigint,
 	event varchar(75) null,
 	type_ varchar(75) null,
-	version varchar(75) null
+	typePK bigint
 ) engine InnoDB;
 
 create table EmailAddress (
+	uuid_ varchar(75) null,
 	emailAddressId bigint not null primary key,
 	companyId bigint,
 	userId bigint,
@@ -700,6 +746,7 @@ create table ExpandoColumn (
 create table ExpandoRow (
 	rowId_ bigint not null primary key,
 	companyId bigint,
+	modifiedDate datetime null,
 	tableId bigint,
 	classPK bigint
 ) engine InnoDB;
@@ -723,6 +770,7 @@ create table ExpandoValue (
 ) engine InnoDB;
 
 create table Group_ (
+	uuid_ varchar(75) null,
 	groupId bigint not null primary key,
 	companyId bigint,
 	creatorUserId bigint,
@@ -730,12 +778,16 @@ create table Group_ (
 	classPK bigint,
 	parentGroupId bigint,
 	liveGroupId bigint,
+	treePath longtext null,
 	name varchar(150) null,
 	description longtext null,
 	type_ integer,
 	typeSettings longtext null,
-	friendlyURL varchar(100) null,
+	manualMembership tinyint,
+	membershipRestriction integer,
+	friendlyURL varchar(255) null,
 	site tinyint,
+	remoteStagingGroupCount integer,
 	active_ tinyint
 ) engine InnoDB;
 
@@ -743,12 +795,6 @@ create table Groups_Orgs (
 	groupId bigint not null,
 	organizationId bigint not null,
 	primary key (groupId, organizationId)
-) engine InnoDB;
-
-create table Groups_Permissions (
-	groupId bigint not null,
-	permissionId bigint not null,
-	primary key (groupId, permissionId)
 ) engine InnoDB;
 
 create table Groups_Roles (
@@ -766,7 +812,6 @@ create table Groups_UserGroups (
 create table Image (
 	imageId bigint not null primary key,
 	modifiedDate datetime null,
-	text_ longtext null,
 	type_ varchar(75) null,
 	height integer,
 	width integer,
@@ -783,8 +828,10 @@ create table JournalArticle (
 	userName varchar(75) null,
 	createDate datetime null,
 	modifiedDate datetime null,
+	folderId bigint,
 	classNameId bigint,
 	classPK bigint,
+	treePath longtext null,
 	articleId varchar(75) null,
 	version double,
 	title longtext null,
@@ -858,45 +905,27 @@ create table JournalFeed (
 	targetLayoutFriendlyUrl varchar(255) null,
 	targetPortletId varchar(75) null,
 	contentField varchar(75) null,
-	feedType varchar(75) null,
+	feedFormat varchar(75) null,
 	feedVersion double
 ) engine InnoDB;
 
-create table JournalStructure (
+create table JournalFolder (
 	uuid_ varchar(75) null,
-	id_ bigint not null primary key,
+	folderId bigint not null primary key,
 	groupId bigint,
 	companyId bigint,
 	userId bigint,
 	userName varchar(75) null,
 	createDate datetime null,
 	modifiedDate datetime null,
-	structureId varchar(75) null,
-	parentStructureId varchar(75) null,
-	name longtext null,
+	parentFolderId bigint,
+	treePath longtext null,
+	name varchar(100) null,
 	description longtext null,
-	xsd longtext null
-) engine InnoDB;
-
-create table JournalTemplate (
-	uuid_ varchar(75) null,
-	id_ bigint not null primary key,
-	groupId bigint,
-	companyId bigint,
-	userId bigint,
-	userName varchar(75) null,
-	createDate datetime null,
-	modifiedDate datetime null,
-	templateId varchar(75) null,
-	structureId varchar(75) null,
-	name longtext null,
-	description longtext null,
-	xsl longtext null,
-	langType varchar(75) null,
-	cacheable tinyint,
-	smallImage tinyint,
-	smallImageId bigint,
-	smallImageURL longtext null
+	status integer,
+	statusByUserId bigint,
+	statusByUserName varchar(75) null,
+	statusDate datetime null
 ) engine InnoDB;
 
 create table Layout (
@@ -904,6 +933,8 @@ create table Layout (
 	plid bigint not null primary key,
 	groupId bigint,
 	companyId bigint,
+	userId bigint,
+	userName varchar(75) null,
 	createDate datetime null,
 	modifiedDate datetime null,
 	privateLayout tinyint,
@@ -944,10 +975,29 @@ create table LayoutBranch (
 	master tinyint
 ) engine InnoDB;
 
+create table LayoutFriendlyURL (
+	uuid_ varchar(75) null,
+	layoutFriendlyURLId bigint not null primary key,
+	groupId bigint,
+	companyId bigint,
+	userId bigint,
+	userName varchar(75) null,
+	createDate datetime null,
+	modifiedDate datetime null,
+	plid bigint,
+	privateLayout tinyint,
+	friendlyURL varchar(255) null,
+	languageId varchar(75) null
+) engine InnoDB;
+
 create table LayoutPrototype (
 	uuid_ varchar(75) null,
 	layoutPrototypeId bigint not null primary key,
 	companyId bigint,
+	userId bigint,
+	userName varchar(75) null,
+	createDate datetime null,
+	modifiedDate datetime null,
 	name longtext null,
 	description longtext null,
 	settings_ longtext null,
@@ -1036,6 +1086,8 @@ create table LayoutSetPrototype (
 	uuid_ varchar(75) null,
 	layoutSetPrototypeId bigint not null primary key,
 	companyId bigint,
+	userId bigint,
+	userName varchar(75) null,
 	createDate datetime null,
 	modifiedDate datetime null,
 	name longtext null,
@@ -1065,6 +1117,7 @@ create table Lock_ (
 ) engine InnoDB;
 
 create table MBBan (
+	uuid_ varchar(75) null,
 	banId bigint not null primary key,
 	groupId bigint,
 	companyId bigint,
@@ -1090,11 +1143,22 @@ create table MBCategory (
 	displayStyle varchar(75) null,
 	threadCount integer,
 	messageCount integer,
-	lastPostDate datetime null
+	lastPostDate datetime null,
+	status integer,
+	statusByUserId bigint,
+	statusByUserName varchar(75) null,
+	statusDate datetime null
 ) engine InnoDB;
 
 create table MBDiscussion (
+	uuid_ varchar(75) null,
 	discussionId bigint not null primary key,
+	groupId bigint,
+	companyId bigint,
+	userId bigint,
+	userName varchar(75) null,
+	createDate datetime null,
+	modifiedDate datetime null,
 	classNameId bigint,
 	classPK bigint,
 	threadId bigint
@@ -1147,7 +1211,6 @@ create table MBMessage (
 	subject varchar(75) null,
 	body longtext null,
 	format varchar(75) null,
-	attachments tinyint,
 	anonymous tinyint,
 	priority double,
 	allowPingbacks tinyint,
@@ -1167,9 +1230,14 @@ create table MBStatsUser (
 ) engine InnoDB;
 
 create table MBThread (
+	uuid_ varchar(75) null,
 	threadId bigint not null primary key,
 	groupId bigint,
 	companyId bigint,
+	userId bigint,
+	userName varchar(75) null,
+	createDate datetime null,
+	modifiedDate datetime null,
 	categoryId bigint,
 	rootMessageId bigint,
 	rootMessageUserId bigint,
@@ -1186,8 +1254,13 @@ create table MBThread (
 ) engine InnoDB;
 
 create table MBThreadFlag (
+	uuid_ varchar(75) null,
 	threadFlagId bigint not null primary key,
+	groupId bigint,
+	companyId bigint,
 	userId bigint,
+	userName varchar(75) null,
+	createDate datetime null,
 	modifiedDate datetime null,
 	threadId bigint
 ) engine InnoDB;
@@ -1268,8 +1341,13 @@ create table MembershipRequest (
 ) engine InnoDB;
 
 create table Organization_ (
+	uuid_ varchar(75) null,
 	organizationId bigint not null primary key,
 	companyId bigint,
+	userId bigint,
+	userName varchar(75) null,
+	createDate datetime null,
+	modifiedDate datetime null,
 	parentOrganizationId bigint,
 	treePath longtext null,
 	name varchar(100) null,
@@ -1279,13 +1357,6 @@ create table Organization_ (
 	countryId bigint,
 	statusId integer,
 	comments longtext null
-) engine InnoDB;
-
-create table OrgGroupPermission (
-	organizationId bigint not null,
-	groupId bigint not null,
-	permissionId bigint not null,
-	primary key (organizationId, groupId, permissionId)
 ) engine InnoDB;
 
 create table OrgGroupRole (
@@ -1316,6 +1387,7 @@ create table OrgLabor (
 ) engine InnoDB;
 
 create table PasswordPolicy (
+	uuid_ varchar(75) null,
 	passwordPolicyId bigint not null primary key,
 	companyId bigint,
 	userId bigint,
@@ -1336,6 +1408,7 @@ create table PasswordPolicy (
 	minNumbers integer,
 	minSymbols integer,
 	minUpperCase integer,
+	regex varchar(75) null,
 	history tinyint,
 	historyCount integer,
 	expireable tinyint,
@@ -1364,14 +1437,8 @@ create table PasswordTracker (
 	password_ varchar(75) null
 ) engine InnoDB;
 
-create table Permission_ (
-	permissionId bigint not null primary key,
-	companyId bigint,
-	actionId varchar(75) null,
-	resourceId bigint
-) engine InnoDB;
-
 create table Phone (
+	uuid_ varchar(75) null,
 	phoneId bigint not null primary key,
 	companyId bigint,
 	userId bigint,
@@ -1398,6 +1465,12 @@ create table PluginSetting (
 create table PollsChoice (
 	uuid_ varchar(75) null,
 	choiceId bigint not null primary key,
+	groupId bigint,
+	companyId bigint,
+	userId bigint,
+	userName varchar(75) null,
+	createDate datetime null,
+	modifiedDate datetime null,
 	questionId bigint,
 	name varchar(75) null,
 	description longtext null
@@ -1419,7 +1492,9 @@ create table PollsQuestion (
 ) engine InnoDB;
 
 create table PollsVote (
+	uuid_ varchar(75) null,
 	voteId bigint not null primary key,
+	groupId bigint,
 	companyId bigint,
 	userId bigint,
 	userName varchar(75) null,
@@ -1454,7 +1529,7 @@ create table PortletItem (
 	createDate datetime null,
 	modifiedDate datetime null,
 	name varchar(75) null,
-	portletId varchar(75) null,
+	portletId varchar(200) null,
 	classNameId bigint
 ) engine InnoDB;
 
@@ -1520,7 +1595,7 @@ create table Repository (
 	classNameId bigint,
 	name varchar(75) null,
 	description longtext null,
-	portletId varchar(75) null,
+	portletId varchar(200) null,
 	typeSettings longtext null,
 	dlFolderId bigint
 ) engine InnoDB;
@@ -1529,8 +1604,21 @@ create table RepositoryEntry (
 	uuid_ varchar(75) null,
 	repositoryEntryId bigint not null primary key,
 	groupId bigint,
+	companyId bigint,
+	userId bigint,
+	userName varchar(75) null,
+	createDate datetime null,
+	modifiedDate datetime null,
 	repositoryId bigint,
-	mappedId varchar(75) null
+	mappedId varchar(75) null,
+	manualCheckInRequired tinyint
+) engine InnoDB;
+
+create table ResourceAction (
+	resourceActionId bigint not null primary key,
+	name varchar(255) null,
+	actionId varchar(75) null,
+	bitwiseValue bigint
 ) engine InnoDB;
 
 create table ResourceBlock (
@@ -1549,35 +1637,6 @@ create table ResourceBlockPermission (
 	actionIds bigint
 ) engine InnoDB;
 
-create table ResourceTypePermission (
-	resourceTypePermissionId bigint not null primary key,
-	companyId bigint,
-	groupId bigint,
-	name varchar(75) null,
-	roleId bigint,
-	actionIds bigint
-) engine InnoDB;
-
-create table Resource_ (
-	resourceId bigint not null primary key,
-	codeId bigint,
-	primKey varchar(255) null
-) engine InnoDB;
-
-create table ResourceAction (
-	resourceActionId bigint not null primary key,
-	name varchar(255) null,
-	actionId varchar(75) null,
-	bitwiseValue bigint
-) engine InnoDB;
-
-create table ResourceCode (
-	codeId bigint not null primary key,
-	companyId bigint,
-	name varchar(255) null,
-	scope integer
-) engine InnoDB;
-
 create table ResourcePermission (
 	resourcePermissionId bigint not null primary key,
 	companyId bigint,
@@ -1589,9 +1648,23 @@ create table ResourcePermission (
 	actionIds bigint
 ) engine InnoDB;
 
+create table ResourceTypePermission (
+	resourceTypePermissionId bigint not null primary key,
+	companyId bigint,
+	groupId bigint,
+	name varchar(75) null,
+	roleId bigint,
+	actionIds bigint
+) engine InnoDB;
+
 create table Role_ (
+	uuid_ varchar(75) null,
 	roleId bigint not null primary key,
 	companyId bigint,
+	userId bigint,
+	userName varchar(75) null,
+	createDate datetime null,
+	modifiedDate datetime null,
 	classNameId bigint,
 	classPK bigint,
 	name varchar(75) null,
@@ -1599,12 +1672,6 @@ create table Role_ (
 	description longtext null,
 	type_ integer,
 	subtype varchar(75) null
-) engine InnoDB;
-
-create table Roles_Permissions (
-	roleId bigint not null,
-	permissionId bigint not null,
-	primary key (roleId, permissionId)
 ) engine InnoDB;
 
 create table SCFrameworkVersi_SCProductVers (
@@ -1880,9 +1947,12 @@ create table SocialActivity (
 	companyId bigint,
 	userId bigint,
 	createDate bigint,
+	activitySetId bigint,
 	mirrorActivityId bigint,
 	classNameId bigint,
 	classPK bigint,
+	parentClassNameId bigint,
+	parentClassPK bigint,
 	type_ integer,
 	extraData longtext null,
 	receiverUserId bigint
@@ -1910,7 +1980,8 @@ create table SocialActivityCounter (
 	totalValue integer,
 	graceValue integer,
 	startPeriod integer,
-	endPeriod integer
+	endPeriod integer,
+	active_ tinyint
 ) engine InnoDB;
 
 create table SocialActivityLimit (
@@ -1923,6 +1994,20 @@ create table SocialActivityLimit (
 	activityType integer,
 	activityCounterName varchar(75) null,
 	value varchar(75) null
+) engine InnoDB;
+
+create table SocialActivitySet (
+	activitySetId bigint not null primary key,
+	groupId bigint,
+	companyId bigint,
+	userId bigint,
+	createDate bigint,
+	modifiedDate bigint,
+	classNameId bigint,
+	classPK bigint,
+	type_ integer,
+	extraData longtext null,
+	activityCount integer
 ) engine InnoDB;
 
 create table SocialActivitySetting (
@@ -1973,6 +2058,23 @@ create table Subscription (
 	frequency varchar(75) null
 ) engine InnoDB;
 
+create table SystemEvent (
+	systemEventId bigint not null primary key,
+	groupId bigint,
+	companyId bigint,
+	userId bigint,
+	userName varchar(75) null,
+	createDate datetime null,
+	classNameId bigint,
+	classPK bigint,
+	classUuid varchar(75) null,
+	referrerClassNameId bigint,
+	parentSystemEventId bigint,
+	systemEventSetKey bigint,
+	type_ integer,
+	extraData longtext null
+) engine InnoDB;
+
 create table Team (
 	teamId bigint not null primary key,
 	companyId bigint,
@@ -1997,6 +2099,40 @@ create table Ticket (
 	expirationDate datetime null
 ) engine InnoDB;
 
+create table TrashEntry (
+	entryId bigint not null primary key,
+	groupId bigint,
+	companyId bigint,
+	userId bigint,
+	userName varchar(75) null,
+	createDate datetime null,
+	classNameId bigint,
+	classPK bigint,
+	systemEventSetKey bigint,
+	typeSettings longtext null,
+	status integer
+) engine InnoDB;
+
+create table TrashVersion (
+	versionId bigint not null primary key,
+	entryId bigint,
+	classNameId bigint,
+	classPK bigint,
+	typeSettings longtext null,
+	status integer
+) engine InnoDB;
+
+create table UserNotificationDelivery (
+	userNotificationDeliveryId bigint not null primary key,
+	companyId bigint,
+	userId bigint,
+	portletId varchar(200) null,
+	classNameId bigint,
+	notificationType integer,
+	deliveryType integer,
+	deliver tinyint
+) engine InnoDB;
+
 create table User_ (
 	uuid_ varchar(75) null,
 	userId bigint not null primary key,
@@ -2016,6 +2152,7 @@ create table User_ (
 	screenName varchar(75) null,
 	emailAddress varchar(75) null,
 	facebookId bigint,
+	ldapServerId bigint,
 	openId varchar(1024) null,
 	portraitId bigint,
 	languageId varchar(75) null,
@@ -2040,8 +2177,13 @@ create table User_ (
 ) engine InnoDB;
 
 create table UserGroup (
+	uuid_ varchar(75) null,
 	userGroupId bigint not null primary key,
 	companyId bigint,
+	userId bigint,
+	userName varchar(75) null,
+	createDate datetime null,
+	modifiedDate datetime null,
 	parentUserGroupId bigint,
 	name varchar(75) null,
 	description longtext null,
@@ -2063,9 +2205,9 @@ create table UserGroupRole (
 ) engine InnoDB;
 
 create table UserGroups_Teams (
-	userGroupId bigint not null,
 	teamId bigint not null,
-	primary key (userGroupId, teamId)
+	userGroupId bigint not null,
+	primary key (teamId, userGroupId)
 ) engine InnoDB;
 
 create table UserIdMapper (
@@ -2084,44 +2226,39 @@ create table UserNotificationEvent (
 	type_ varchar(75) null,
 	timestamp bigint,
 	deliverBy bigint,
+	delivered tinyint,
 	payload longtext null,
 	archived tinyint
 ) engine InnoDB;
 
 create table Users_Groups (
-	userId bigint not null,
 	groupId bigint not null,
-	primary key (userId, groupId)
+	userId bigint not null,
+	primary key (groupId, userId)
 ) engine InnoDB;
 
 create table Users_Orgs (
-	userId bigint not null,
 	organizationId bigint not null,
-	primary key (userId, organizationId)
-) engine InnoDB;
-
-create table Users_Permissions (
 	userId bigint not null,
-	permissionId bigint not null,
-	primary key (userId, permissionId)
+	primary key (organizationId, userId)
 ) engine InnoDB;
 
 create table Users_Roles (
-	userId bigint not null,
 	roleId bigint not null,
-	primary key (userId, roleId)
+	userId bigint not null,
+	primary key (roleId, userId)
 ) engine InnoDB;
 
 create table Users_Teams (
-	userId bigint not null,
 	teamId bigint not null,
-	primary key (userId, teamId)
+	userId bigint not null,
+	primary key (teamId, userId)
 ) engine InnoDB;
 
 create table Users_UserGroups (
-	userGroupId bigint not null,
 	userId bigint not null,
-	primary key (userGroupId, userId)
+	userGroupId bigint not null,
+	primary key (userId, userGroupId)
 ) engine InnoDB;
 
 create table UserTracker (
@@ -2160,6 +2297,7 @@ create table WebDAVProps (
 ) engine InnoDB;
 
 create table Website (
+	uuid_ varchar(75) null,
 	websiteId bigint not null primary key,
 	companyId bigint,
 	userId bigint,
@@ -2184,7 +2322,11 @@ create table WikiNode (
 	modifiedDate datetime null,
 	name varchar(75) null,
 	description longtext null,
-	lastPostDate datetime null
+	lastPostDate datetime null,
+	status integer,
+	statusByUserId bigint,
+	statusByUserName varchar(75) null,
+	statusDate datetime null
 ) engine InnoDB;
 
 create table WikiPage (
@@ -2249,233 +2391,255 @@ create table WorkflowInstanceLink (
 ) engine InnoDB;
 
 
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (1, 'Canada', 'CA', 'CAN', '124', '001', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (2, 'China', 'CN', 'CHN', '156', '086', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (3, 'France', 'FR', 'FRA', '250', '033', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (4, 'Germany', 'DE', 'DEU', '276', '049', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (5, 'Hong Kong', 'HK', 'HKG', '344', '852', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (6, 'Hungary', 'HU', 'HUN', '348', '036', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (7, 'Israel', 'IL', 'ISR', '376', '972', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (8, 'Italy', 'IT', 'ITA', '380', '039', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (9, 'Japan', 'JP', 'JPN', '392', '081', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (10, 'South Korea', 'KR', 'KOR', '410', '082', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (11, 'Netherlands', 'NL', 'NLD', '528', '031', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (12, 'Portugal', 'PT', 'PRT', '620', '351', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (13, 'Russia', 'RU', 'RUS', '643', '007', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (14, 'Singapore', 'SG', 'SGP', '702', '065', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (15, 'Spain', 'ES', 'ESP', '724', '034', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (16, 'Turkey', 'TR', 'TUR', '792', '090', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (17, 'Vietnam', 'VN', 'VNM', '704', '084', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (18, 'United Kingdom', 'GB', 'GBR', '826', '044', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (19, 'United States', 'US', 'USA', '840', '001', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (20, 'Afghanistan', 'AF', 'AFG', '4', '093', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (21, 'Albania', 'AL', 'ALB', '8', '355', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (22, 'Algeria', 'DZ', 'DZA', '12', '213', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (23, 'American Samoa', 'AS', 'ASM', '16', '684', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (24, 'Andorra', 'AD', 'AND', '20', '376', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (25, 'Angola', 'AO', 'AGO', '24', '244', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (26, 'Anguilla', 'AI', 'AIA', '660', '264', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (27, 'Antarctica', 'AQ', 'ATA', '10', '672', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (28, 'Antigua', 'AG', 'ATG', '28', '268', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (29, 'Argentina', 'AR', 'ARG', '32', '054', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (30, 'Armenia', 'AM', 'ARM', '51', '374', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (31, 'Aruba', 'AW', 'ABW', '533', '297', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (32, 'Australia', 'AU', 'AUS', '36', '061', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (33, 'Austria', 'AT', 'AUT', '40', '043', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (34, 'Azerbaijan', 'AZ', 'AZE', '31', '994', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (35, 'Bahamas', 'BS', 'BHS', '44', '242', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (36, 'Bahrain', 'BH', 'BHR', '48', '973', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (37, 'Bangladesh', 'BD', 'BGD', '50', '880', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (38, 'Barbados', 'BB', 'BRB', '52', '246', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (39, 'Belarus', 'BY', 'BLR', '112', '375', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (40, 'Belgium', 'BE', 'BEL', '56', '032', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (41, 'Belize', 'BZ', 'BLZ', '84', '501', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (42, 'Benin', 'BJ', 'BEN', '204', '229', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (43, 'Bermuda', 'BM', 'BMU', '60', '441', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (44, 'Bhutan', 'BT', 'BTN', '64', '975', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (45, 'Bolivia', 'BO', 'BOL', '68', '591', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (46, 'Bosnia-Herzegovina', 'BA', 'BIH', '70', '387', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (47, 'Botswana', 'BW', 'BWA', '72', '267', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (48, 'Brazil', 'BR', 'BRA', '76', '055', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (49, 'British Virgin Islands', 'VG', 'VGB', '92', '284', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (50, 'Brunei', 'BN', 'BRN', '96', '673', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (51, 'Bulgaria', 'BG', 'BGR', '100', '359', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (52, 'Burkina Faso', 'BF', 'BFA', '854', '226', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (53, 'Burma (Myanmar)', 'MM', 'MMR', '104', '095', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (54, 'Burundi', 'BI', 'BDI', '108', '257', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (55, 'Cambodia', 'KH', 'KHM', '116', '855', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (56, 'Cameroon', 'CM', 'CMR', '120', '237', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (57, 'Cape Verde Island', 'CV', 'CPV', '132', '238', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (58, 'Cayman Islands', 'KY', 'CYM', '136', '345', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (59, 'Central African Republic', 'CF', 'CAF', '140', '236', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (60, 'Chad', 'TD', 'TCD', '148', '235', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (61, 'Chile', 'CL', 'CHL', '152', '056', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (62, 'Christmas Island', 'CX', 'CXR', '162', '061', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (63, 'Cocos Islands', 'CC', 'CCK', '166', '061', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (64, 'Colombia', 'CO', 'COL', '170', '057', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (65, 'Comoros', 'KM', 'COM', '174', '269', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (66, 'Republic of Congo', 'CD', 'COD', '180', '242', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (67, 'Democratic Republic of Congo', 'CG', 'COG', '178', '243', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (68, 'Cook Islands', 'CK', 'COK', '184', '682', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (69, 'Costa Rica', 'CR', 'CRI', '188', '506', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (70, 'Croatia', 'HR', 'HRV', '191', '385', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (71, 'Cuba', 'CU', 'CUB', '192', '053', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (72, 'Cyprus', 'CY', 'CYP', '196', '357', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (73, 'Czech Republic', 'CZ', 'CZE', '203', '420', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (74, 'Denmark', 'DK', 'DNK', '208', '045', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (75, 'Djibouti', 'DJ', 'DJI', '262', '253', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (76, 'Dominica', 'DM', 'DMA', '212', '767', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (77, 'Dominican Republic', 'DO', 'DOM', '214', '809', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (78, 'Ecuador', 'EC', 'ECU', '218', '593', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (79, 'Egypt', 'EG', 'EGY', '818', '020', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (80, 'El Salvador', 'SV', 'SLV', '222', '503', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (81, 'Equatorial Guinea', 'GQ', 'GNQ', '226', '240', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (82, 'Eritrea', 'ER', 'ERI', '232', '291', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (83, 'Estonia', 'EE', 'EST', '233', '372', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (84, 'Ethiopia', 'ET', 'ETH', '231', '251', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (85, 'Faeroe Islands', 'FO', 'FRO', '234', '298', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (86, 'Falkland Islands', 'FK', 'FLK', '238', '500', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (87, 'Fiji Islands', 'FJ', 'FJI', '242', '679', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (88, 'Finland', 'FI', 'FIN', '246', '358', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (89, 'French Guiana', 'GF', 'GUF', '254', '594', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (90, 'French Polynesia', 'PF', 'PYF', '258', '689', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (91, 'Gabon', 'GA', 'GAB', '266', '241', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (92, 'Gambia', 'GM', 'GMB', '270', '220', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (93, 'Georgia', 'GE', 'GEO', '268', '995', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (94, 'Ghana', 'GH', 'GHA', '288', '233', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (95, 'Gibraltar', 'GI', 'GIB', '292', '350', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (96, 'Greece', 'GR', 'GRC', '300', '030', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (97, 'Greenland', 'GL', 'GRL', '304', '299', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (98, 'Grenada', 'GD', 'GRD', '308', '473', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (99, 'Guadeloupe', 'GP', 'GLP', '312', '590', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (100, 'Guam', 'GU', 'GUM', '316', '671', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (101, 'Guatemala', 'GT', 'GTM', '320', '502', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (102, 'Guinea', 'GN', 'GIN', '324', '224', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (103, 'Guinea-Bissau', 'GW', 'GNB', '624', '245', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (104, 'Guyana', 'GY', 'GUY', '328', '592', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (105, 'Haiti', 'HT', 'HTI', '332', '509', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (106, 'Honduras', 'HN', 'HND', '340', '504', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (107, 'Iceland', 'IS', 'ISL', '352', '354', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (108, 'India', 'IN', 'IND', '356', '091', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (109, 'Indonesia', 'ID', 'IDN', '360', '062', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (110, 'Iran', 'IR', 'IRN', '364', '098', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (111, 'Iraq', 'IQ', 'IRQ', '368', '964', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (112, 'Ireland', 'IE', 'IRL', '372', '353', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (113, 'Ivory Coast', 'CI', 'CIV', '384', '225', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (114, 'Jamaica', 'JM', 'JAM', '388', '876', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (115, 'Jordan', 'JO', 'JOR', '400', '962', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (116, 'Kazakhstan', 'KZ', 'KAZ', '398', '007', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (117, 'Kenya', 'KE', 'KEN', '404', '254', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (118, 'Kiribati', 'KI', 'KIR', '408', '686', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (119, 'Kuwait', 'KW', 'KWT', '414', '965', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (120, 'North Korea', 'KP', 'PRK', '408', '850', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (121, 'Kyrgyzstan', 'KG', 'KGZ', '471', '996', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (122, 'Laos', 'LA', 'LAO', '418', '856', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (123, 'Latvia', 'LV', 'LVA', '428', '371', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (124, 'Lebanon', 'LB', 'LBN', '422', '961', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (125, 'Lesotho', 'LS', 'LSO', '426', '266', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (126, 'Liberia', 'LR', 'LBR', '430', '231', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (127, 'Libya', 'LY', 'LBY', '434', '218', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (128, 'Liechtenstein', 'LI', 'LIE', '438', '423', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (129, 'Lithuania', 'LT', 'LTU', '440', '370', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (130, 'Luxembourg', 'LU', 'LUX', '442', '352', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (131, 'Macau', 'MO', 'MAC', '446', '853', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (132, 'Macedonia', 'MK', 'MKD', '807', '389', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (133, 'Madagascar', 'MG', 'MDG', '450', '261', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (134, 'Malawi', 'MW', 'MWI', '454', '265', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (135, 'Malaysia', 'MY', 'MYS', '458', '060', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (136, 'Maldives', 'MV', 'MDV', '462', '960', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (137, 'Mali', 'ML', 'MLI', '466', '223', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (138, 'Malta', 'MT', 'MLT', '470', '356', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (139, 'Marshall Islands', 'MH', 'MHL', '584', '692', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (140, 'Martinique', 'MQ', 'MTQ', '474', '596', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (141, 'Mauritania', 'MR', 'MRT', '478', '222', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (142, 'Mauritius', 'MU', 'MUS', '480', '230', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (143, 'Mayotte Island', 'YT', 'MYT', '175', '269', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (144, 'Mexico', 'MX', 'MEX', '484', '052', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (145, 'Micronesia', 'FM', 'FSM', '583', '691', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (146, 'Moldova', 'MD', 'MDA', '498', '373', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (147, 'Monaco', 'MC', 'MCO', '492', '377', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (148, 'Mongolia', 'MN', 'MNG', '496', '976', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (149, 'Montenegro', 'ME', 'MNE', '499', '382', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (150, 'Montserrat', 'MS', 'MSR', '500', '664', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (151, 'Morocco', 'MA', 'MAR', '504', '212', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (152, 'Mozambique', 'MZ', 'MOZ', '508', '258', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (153, 'Namibia', 'NA', 'NAM', '516', '264', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (154, 'Nauru', 'NR', 'NRU', '520', '674', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (155, 'Nepal', 'NP', 'NPL', '524', '977', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (156, 'Netherlands Antilles', 'AN', 'ANT', '530', '599', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (157, 'New Caledonia', 'NC', 'NCL', '540', '687', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (158, 'New Zealand', 'NZ', 'NZL', '554', '064', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (159, 'Nicaragua', 'NI', 'NIC', '558', '505', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (160, 'Niger', 'NE', 'NER', '562', '227', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (161, 'Nigeria', 'NG', 'NGA', '566', '234', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (162, 'Niue', 'NU', 'NIU', '570', '683', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (163, 'Norfolk Island', 'NF', 'NFK', '574', '672', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (164, 'Norway', 'NO', 'NOR', '578', '047', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (165, 'Oman', 'OM', 'OMN', '512', '968', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (166, 'Pakistan', 'PK', 'PAK', '586', '092', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (167, 'Palau', 'PW', 'PLW', '585', '680', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (168, 'Palestine', 'PS', 'PSE', '275', '970', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (169, 'Panama', 'PA', 'PAN', '591', '507', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (170, 'Papua New Guinea', 'PG', 'PNG', '598', '675', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (171, 'Paraguay', 'PY', 'PRY', '600', '595', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (172, 'Peru', 'PE', 'PER', '604', '051', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (173, 'Philippines', 'PH', 'PHL', '608', '063', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (174, 'Poland', 'PL', 'POL', '616', '048', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (175, 'Puerto Rico', 'PR', 'PRI', '630', '787', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (176, 'Qatar', 'QA', 'QAT', '634', '974', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (177, 'Reunion Island', 'RE', 'REU', '638', '262', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (178, 'Romania', 'RO', 'ROU', '642', '040', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (179, 'Rwanda', 'RW', 'RWA', '646', '250', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (180, 'St. Helena', 'SH', 'SHN', '654', '290', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (181, 'St. Kitts', 'KN', 'KNA', '659', '869', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (182, 'St. Lucia', 'LC', 'LCA', '662', '758', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (183, 'St. Pierre & Miquelon', 'PM', 'SPM', '666', '508', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (184, 'St. Vincent', 'VC', 'VCT', '670', '784', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (185, 'San Marino', 'SM', 'SMR', '674', '378', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (186, 'Sao Tome & Principe', 'ST', 'STP', '678', '239', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (187, 'Saudi Arabia', 'SA', 'SAU', '682', '966', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (188, 'Senegal', 'SN', 'SEN', '686', '221', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (189, 'Serbia', 'RS', 'SRB', '688', '381', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (190, 'Seychelles', 'SC', 'SYC', '690', '248', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (191, 'Sierra Leone', 'SL', 'SLE', '694', '249', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (192, 'Slovakia', 'SK', 'SVK', '703', '421', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (193, 'Slovenia', 'SI', 'SVN', '705', '386', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (194, 'Solomon Islands', 'SB', 'SLB', '90', '677', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (195, 'Somalia', 'SO', 'SOM', '706', '252', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (196, 'South Africa', 'ZA', 'ZAF', '710', '027', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (197, 'Sri Lanka', 'LK', 'LKA', '144', '094', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (198, 'Sudan', 'SD', 'SDN', '736', '095', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (199, 'Suriname', 'SR', 'SUR', '740', '597', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (200, 'Swaziland', 'SZ', 'SWZ', '748', '268', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (201, 'Sweden', 'SE', 'SWE', '752', '046', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (202, 'Switzerland', 'CH', 'CHE', '756', '041', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (203, 'Syria', 'SY', 'SYR', '760', '963', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (204, 'Taiwan', 'TW', 'TWN', '158', '886', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (205, 'Tajikistan', 'TJ', 'TJK', '762', '992', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (206, 'Tanzania', 'TZ', 'TZA', '834', '255', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (207, 'Thailand', 'TH', 'THA', '764', '066', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (208, 'Togo', 'TG', 'TGO', '768', '228', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (209, 'Tonga', 'TO', 'TON', '776', '676', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (210, 'Trinidad & Tobago', 'TT', 'TTO', '780', '868', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (211, 'Tunisia', 'TN', 'TUN', '788', '216', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (212, 'Turkmenistan', 'TM', 'TKM', '795', '993', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (213, 'Turks & Caicos', 'TC', 'TCA', '796', '649', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (214, 'Tuvalu', 'TV', 'TUV', '798', '688', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (215, 'Uganda', 'UG', 'UGA', '800', '256', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (216, 'Ukraine', 'UA', 'UKR', '804', '380', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (217, 'United Arab Emirates', 'AE', 'ARE', '784', '971', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (218, 'Uruguay', 'UY', 'URY', '858', '598', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (219, 'Uzbekistan', 'UZ', 'UZB', '860', '998', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (220, 'Vanuatu', 'VU', 'VUT', '548', '678', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (221, 'Vatican City', 'VA', 'VAT', '336', '039', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (222, 'Venezuela', 'VE', 'VEN', '862', '058', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (223, 'Wallis & Futuna', 'WF', 'WLF', '876', '681', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (224, 'Western Samoa', 'EH', 'ESH', '732', '685', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (225, 'Yemen', 'YE', 'YEM', '887', '967', 0, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (226, 'Zambia', 'ZM', 'ZMB', '894', '260', 1, 1);
-insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (227, 'Zimbabwe', 'ZW', 'ZWE', '716', '263', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (1, 'canada', 'CA', 'CAN', '124', '001', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (2, 'china', 'CN', 'CHN', '156', '086', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (3, 'france', 'FR', 'FRA', '250', '033', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (4, 'germany', 'DE', 'DEU', '276', '049', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (5, 'hong-kong', 'HK', 'HKG', '344', '852', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (6, 'hungary', 'HU', 'HUN', '348', '036', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (7, 'israel', 'IL', 'ISR', '376', '972', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (8, 'italy', 'IT', 'ITA', '380', '039', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (9, 'japan', 'JP', 'JPN', '392', '081', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (10, 'south-korea', 'KR', 'KOR', '410', '082', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (11, 'netherlands', 'NL', 'NLD', '528', '031', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (12, 'portugal', 'PT', 'PRT', '620', '351', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (13, 'russia', 'RU', 'RUS', '643', '007', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (14, 'singapore', 'SG', 'SGP', '702', '065', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (15, 'spain', 'ES', 'ESP', '724', '034', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (16, 'turkey', 'TR', 'TUR', '792', '090', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (17, 'vietnam', 'VN', 'VNM', '704', '084', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (18, 'united-kingdom', 'GB', 'GBR', '826', '044', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (19, 'united-states', 'US', 'USA', '840', '001', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (20, 'afghanistan', 'AF', 'AFG', '4', '093', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (21, 'albania', 'AL', 'ALB', '8', '355', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (22, 'algeria', 'DZ', 'DZA', '12', '213', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (23, 'american-samoa', 'AS', 'ASM', '16', '684', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (24, 'andorra', 'AD', 'AND', '20', '376', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (25, 'angola', 'AO', 'AGO', '24', '244', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (26, 'anguilla', 'AI', 'AIA', '660', '264', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (27, 'antarctica', 'AQ', 'ATA', '10', '672', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (28, 'antigua-barbuda', 'AG', 'ATG', '28', '268', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (29, 'argentina', 'AR', 'ARG', '32', '054', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (30, 'armenia', 'AM', 'ARM', '51', '374', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (31, 'aruba', 'AW', 'ABW', '533', '297', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (32, 'australia', 'AU', 'AUS', '36', '061', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (33, 'austria', 'AT', 'AUT', '40', '043', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (34, 'azerbaijan', 'AZ', 'AZE', '31', '994', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (35, 'bahamas', 'BS', 'BHS', '44', '242', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (36, 'bahrain', 'BH', 'BHR', '48', '973', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (37, 'bangladesh', 'BD', 'BGD', '50', '880', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (38, 'barbados', 'BB', 'BRB', '52', '246', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (39, 'belarus', 'BY', 'BLR', '112', '375', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (40, 'belgium', 'BE', 'BEL', '56', '032', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (41, 'belize', 'BZ', 'BLZ', '84', '501', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (42, 'benin', 'BJ', 'BEN', '204', '229', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (43, 'bermuda', 'BM', 'BMU', '60', '441', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (44, 'bhutan', 'BT', 'BTN', '64', '975', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (45, 'bolivia', 'BO', 'BOL', '68', '591', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (46, 'bosnia-herzegovina', 'BA', 'BIH', '70', '387', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (47, 'botswana', 'BW', 'BWA', '72', '267', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (48, 'brazil', 'BR', 'BRA', '76', '055', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (49, 'british-virgin-islands', 'VG', 'VGB', '92', '284', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (50, 'brunei', 'BN', 'BRN', '96', '673', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (51, 'bulgaria', 'BG', 'BGR', '100', '359', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (52, 'burkina-faso', 'BF', 'BFA', '854', '226', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (53, 'burma-myanmar', 'MM', 'MMR', '104', '095', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (54, 'burundi', 'BI', 'BDI', '108', '257', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (55, 'cambodia', 'KH', 'KHM', '116', '855', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (56, 'cameroon', 'CM', 'CMR', '120', '237', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (57, 'cape-verde-island', 'CV', 'CPV', '132', '238', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (58, 'cayman-islands', 'KY', 'CYM', '136', '345', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (59, 'central-african-republic', 'CF', 'CAF', '140', '236', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (60, 'chad', 'TD', 'TCD', '148', '235', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (61, 'chile', 'CL', 'CHL', '152', '056', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (62, 'christmas-island', 'CX', 'CXR', '162', '061', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (63, 'cocos-islands', 'CC', 'CCK', '166', '061', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (64, 'colombia', 'CO', 'COL', '170', '057', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (65, 'comoros', 'KM', 'COM', '174', '269', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (66, 'republic-of-congo', 'CD', 'COD', '180', '242', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (67, 'democratic-republic-of-congo', 'CG', 'COG', '178', '243', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (68, 'cook-islands', 'CK', 'COK', '184', '682', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (69, 'costa-rica', 'CR', 'CRI', '188', '506', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (70, 'croatia', 'HR', 'HRV', '191', '385', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (71, 'cuba', 'CU', 'CUB', '192', '053', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (72, 'cyprus', 'CY', 'CYP', '196', '357', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (73, 'czech-republic', 'CZ', 'CZE', '203', '420', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (74, 'denmark', 'DK', 'DNK', '208', '045', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (75, 'djibouti', 'DJ', 'DJI', '262', '253', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (76, 'dominica', 'DM', 'DMA', '212', '767', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (77, 'dominican-republic', 'DO', 'DOM', '214', '809', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (78, 'ecuador', 'EC', 'ECU', '218', '593', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (79, 'egypt', 'EG', 'EGY', '818', '020', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (80, 'el-salvador', 'SV', 'SLV', '222', '503', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (81, 'equatorial-guinea', 'GQ', 'GNQ', '226', '240', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (82, 'eritrea', 'ER', 'ERI', '232', '291', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (83, 'estonia', 'EE', 'EST', '233', '372', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (84, 'ethiopia', 'ET', 'ETH', '231', '251', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (85, 'faeroe-islands', 'FO', 'FRO', '234', '298', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (86, 'falkland-islands', 'FK', 'FLK', '238', '500', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (87, 'fiji-islands', 'FJ', 'FJI', '242', '679', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (88, 'finland', 'FI', 'FIN', '246', '358', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (89, 'french-guiana', 'GF', 'GUF', '254', '594', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (90, 'french-polynesia', 'PF', 'PYF', '258', '689', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (91, 'gabon', 'GA', 'GAB', '266', '241', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (92, 'gambia', 'GM', 'GMB', '270', '220', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (93, 'georgia', 'GE', 'GEO', '268', '995', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (94, 'ghana', 'GH', 'GHA', '288', '233', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (95, 'gibraltar', 'GI', 'GIB', '292', '350', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (96, 'greece', 'GR', 'GRC', '300', '030', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (97, 'greenland', 'GL', 'GRL', '304', '299', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (98, 'grenada', 'GD', 'GRD', '308', '473', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (99, 'guadeloupe', 'GP', 'GLP', '312', '590', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (100, 'guam', 'GU', 'GUM', '316', '671', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (101, 'guatemala', 'GT', 'GTM', '320', '502', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (102, 'guinea', 'GN', 'GIN', '324', '224', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (103, 'guinea-bissau', 'GW', 'GNB', '624', '245', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (104, 'guyana', 'GY', 'GUY', '328', '592', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (105, 'haiti', 'HT', 'HTI', '332', '509', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (106, 'honduras', 'HN', 'HND', '340', '504', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (107, 'iceland', 'IS', 'ISL', '352', '354', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (108, 'india', 'IN', 'IND', '356', '091', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (109, 'indonesia', 'ID', 'IDN', '360', '062', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (110, 'iran', 'IR', 'IRN', '364', '098', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (111, 'iraq', 'IQ', 'IRQ', '368', '964', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (112, 'ireland', 'IE', 'IRL', '372', '353', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (113, 'ivory-coast', 'CI', 'CIV', '384', '225', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (114, 'jamaica', 'JM', 'JAM', '388', '876', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (115, 'jordan', 'JO', 'JOR', '400', '962', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (116, 'kazakhstan', 'KZ', 'KAZ', '398', '007', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (117, 'kenya', 'KE', 'KEN', '404', '254', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (118, 'kiribati', 'KI', 'KIR', '408', '686', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (119, 'kuwait', 'KW', 'KWT', '414', '965', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (120, 'north-korea', 'KP', 'PRK', '408', '850', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (121, 'kyrgyzstan', 'KG', 'KGZ', '471', '996', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (122, 'laos', 'LA', 'LAO', '418', '856', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (123, 'latvia', 'LV', 'LVA', '428', '371', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (124, 'lebanon', 'LB', 'LBN', '422', '961', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (125, 'lesotho', 'LS', 'LSO', '426', '266', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (126, 'liberia', 'LR', 'LBR', '430', '231', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (127, 'libya', 'LY', 'LBY', '434', '218', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (128, 'liechtenstein', 'LI', 'LIE', '438', '423', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (129, 'lithuania', 'LT', 'LTU', '440', '370', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (130, 'luxembourg', 'LU', 'LUX', '442', '352', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (131, 'macau', 'MO', 'MAC', '446', '853', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (132, 'macedonia', 'MK', 'MKD', '807', '389', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (133, 'madagascar', 'MG', 'MDG', '450', '261', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (134, 'malawi', 'MW', 'MWI', '454', '265', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (135, 'malaysia', 'MY', 'MYS', '458', '060', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (136, 'maldives', 'MV', 'MDV', '462', '960', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (137, 'mali', 'ML', 'MLI', '466', '223', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (138, 'malta', 'MT', 'MLT', '470', '356', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (139, 'marshall-islands', 'MH', 'MHL', '584', '692', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (140, 'martinique', 'MQ', 'MTQ', '474', '596', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (141, 'mauritania', 'MR', 'MRT', '478', '222', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (142, 'mauritius', 'MU', 'MUS', '480', '230', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (143, 'mayotte-island', 'YT', 'MYT', '175', '269', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (144, 'mexico', 'MX', 'MEX', '484', '052', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (145, 'micronesia', 'FM', 'FSM', '583', '691', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (146, 'moldova', 'MD', 'MDA', '498', '373', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (147, 'monaco', 'MC', 'MCO', '492', '377', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (148, 'mongolia', 'MN', 'MNG', '496', '976', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (149, 'montenegro', 'ME', 'MNE', '499', '382', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (150, 'montserrat', 'MS', 'MSR', '500', '664', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (151, 'morocco', 'MA', 'MAR', '504', '212', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (152, 'mozambique', 'MZ', 'MOZ', '508', '258', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (153, 'namibia', 'NA', 'NAM', '516', '264', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (154, 'nauru', 'NR', 'NRU', '520', '674', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (155, 'nepal', 'NP', 'NPL', '524', '977', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (156, 'netherlands-antilles', 'AN', 'ANT', '530', '599', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (157, 'new-caledonia', 'NC', 'NCL', '540', '687', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (158, 'new-zealand', 'NZ', 'NZL', '554', '064', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (159, 'nicaragua', 'NI', 'NIC', '558', '505', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (160, 'niger', 'NE', 'NER', '562', '227', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (161, 'nigeria', 'NG', 'NGA', '566', '234', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (162, 'niue', 'NU', 'NIU', '570', '683', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (163, 'norfolk-island', 'NF', 'NFK', '574', '672', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (164, 'norway', 'NO', 'NOR', '578', '047', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (165, 'oman', 'OM', 'OMN', '512', '968', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (166, 'pakistan', 'PK', 'PAK', '586', '092', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (167, 'palau', 'PW', 'PLW', '585', '680', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (168, 'palestine', 'PS', 'PSE', '275', '970', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (169, 'panama', 'PA', 'PAN', '591', '507', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (170, 'papua-new-guinea', 'PG', 'PNG', '598', '675', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (171, 'paraguay', 'PY', 'PRY', '600', '595', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (172, 'peru', 'PE', 'PER', '604', '051', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (173, 'philippines', 'PH', 'PHL', '608', '063', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (174, 'poland', 'PL', 'POL', '616', '048', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (175, 'puerto-rico', 'PR', 'PRI', '630', '787', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (176, 'qatar', 'QA', 'QAT', '634', '974', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (177, 'reunion-island', 'RE', 'REU', '638', '262', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (178, 'romania', 'RO', 'ROU', '642', '040', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (179, 'rwanda', 'RW', 'RWA', '646', '250', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (180, 'st-helena', 'SH', 'SHN', '654', '290', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (181, 'st-kitts', 'KN', 'KNA', '659', '869', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (182, 'st-lucia', 'LC', 'LCA', '662', '758', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (183, 'st-pierre-miquelon', 'PM', 'SPM', '666', '508', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (184, 'st-vincent', 'VC', 'VCT', '670', '784', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (185, 'san-marino', 'SM', 'SMR', '674', '378', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (186, 'sao-tome-principe', 'ST', 'STP', '678', '239', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (187, 'saudi-arabia', 'SA', 'SAU', '682', '966', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (188, 'senegal', 'SN', 'SEN', '686', '221', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (189, 'serbia', 'RS', 'SRB', '688', '381', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (190, 'seychelles', 'SC', 'SYC', '690', '248', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (191, 'sierra-leone', 'SL', 'SLE', '694', '249', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (192, 'slovakia', 'SK', 'SVK', '703', '421', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (193, 'slovenia', 'SI', 'SVN', '705', '386', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (194, 'solomon-islands', 'SB', 'SLB', '90', '677', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (195, 'somalia', 'SO', 'SOM', '706', '252', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (196, 'south-africa', 'ZA', 'ZAF', '710', '027', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (197, 'sri-lanka', 'LK', 'LKA', '144', '094', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (198, 'sudan', 'SD', 'SDN', '736', '095', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (199, 'suriname', 'SR', 'SUR', '740', '597', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (200, 'swaziland', 'SZ', 'SWZ', '748', '268', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (201, 'sweden', 'SE', 'SWE', '752', '046', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (202, 'switzerland', 'CH', 'CHE', '756', '041', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (203, 'syria', 'SY', 'SYR', '760', '963', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (204, 'taiwan', 'TW', 'TWN', '158', '886', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (205, 'tajikistan', 'TJ', 'TJK', '762', '992', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (206, 'tanzania', 'TZ', 'TZA', '834', '255', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (207, 'thailand', 'TH', 'THA', '764', '066', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (208, 'togo', 'TG', 'TGO', '768', '228', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (209, 'tonga', 'TO', 'TON', '776', '676', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (210, 'trinidad-tobago', 'TT', 'TTO', '780', '868', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (211, 'tunisia', 'TN', 'TUN', '788', '216', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (212, 'turkmenistan', 'TM', 'TKM', '795', '993', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (213, 'turks-caicos', 'TC', 'TCA', '796', '649', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (214, 'tuvalu', 'TV', 'TUV', '798', '688', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (215, 'uganda', 'UG', 'UGA', '800', '256', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (216, 'ukraine', 'UA', 'UKR', '804', '380', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (217, 'united-arab-emirates', 'AE', 'ARE', '784', '971', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (218, 'uruguay', 'UY', 'URY', '858', '598', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (219, 'uzbekistan', 'UZ', 'UZB', '860', '998', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (220, 'vanuatu', 'VU', 'VUT', '548', '678', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (221, 'vatican-city', 'VA', 'VAT', '336', '039', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (222, 'venezuela', 'VE', 'VEN', '862', '058', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (223, 'wallis-futuna', 'WF', 'WLF', '876', '681', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (224, 'western-samoa', 'WS', 'WSM', '882', '685', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (225, 'yemen', 'YE', 'YEM', '887', '967', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (226, 'zambia', 'ZM', 'ZMB', '894', '260', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (227, 'zimbabwe', 'ZW', 'ZWE', '716', '263', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (228, 'aland-islands', 'AX', 'ALA', '248', '359', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (229, 'bonaire-st-eustatius-saba', 'BQ', 'BES', '535', '599', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (230, 'bouvet-island', 'BV', 'BVT', '74', '047', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (231, 'british-indian-ocean-territory', 'IO', 'IOT', '86', '246', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (232, 'curacao', 'CW', 'CUW', '531', '599', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (233, 'french-southern-territories', 'TF', 'ATF', '260', '033', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (234, 'guernsey', 'GG', 'GGY', '831', '044', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (235, 'heard-island-mcdonald-islands', 'HM', 'HMD', '334', '061', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (236, 'isle-of-man', 'IM', 'IMN', '833', '044', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (237, 'jersey', 'JE', 'JEY', '832', '044', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (238, 'northern-mariana-islands', 'MP', 'MNP', '580', '670', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (239, 'pitcairn', 'PN', 'PCN', '612', '649', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (240, 'south-georgia-south-sandwich-islands', 'GS', 'SGS', '239', '044', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (241, 'south-sudan', 'SS', 'SSD', '728', '211', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (242, 'sint-maarten', 'SX', 'SXM', '534', '721', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (243, 'st-barthelemy', 'BL', 'BLM', '652', '590', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (244, 'st-martin', 'MF', 'MAF', '663', '590', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (245, 'tokelau', 'TK', 'TKL', '772', '690', 0, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (246, 'timor-leste', 'TL', 'TLS', '626', '670', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (247, 'united-states-minor-outlying-islands', 'UM', 'UMI', '581', '699', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (248, 'united-states-virgin-islands', 'VI', 'VIR', '850', '340', 1, 1);
+insert into Country (countryId, name, a2, a3, number_, idd_, zipRequired, active_) values (249, 'western-sahara', 'EH', 'ESH', '732', '212', 1, 1);
 
 insert into Region (regionId, countryId, regionCode, name, active_) values (1001, 1, 'AB', 'Alberta', 1);
 insert into Region (regionId, countryId, regionCode, name, active_) values (1002, 1, 'BC', 'British Columbia', 1);
@@ -2936,10 +3100,10 @@ insert into ListType (listTypeId, name, type_) values (12019, 'intranet', 'com.l
 insert into ListType (listTypeId, name, type_) values (12020, 'public', 'com.liferay.portal.model.Organization.website');
 
 
-insert into Counter values ('com.liferay.counter.model.Counter', 10000);
+insert into Counter (name, currentId) values ('com.liferay.counter.model.Counter', 10000);
 
 
-insert into Release_ (releaseId, createDate, modifiedDate, servletContextName, buildNumber, verified) values (1, now(), now(), 'portal', 6101, 0);
+insert into Release_ (releaseId, createDate, modifiedDate, servletContextName, buildNumber, verified) values (1, now(), now(), 'portal', 6200, 0);
 
 
 create table QUARTZ_BLOB_TRIGGERS (
@@ -2977,8 +3141,8 @@ create table QUARTZ_FIRED_TRIGGERS (
 	STATE varchar(16) not null,
 	JOB_NAME varchar(200) null,
 	JOB_GROUP varchar(200) null,
-	IS_NONCONCURRENT tinyint NULL,
-	REQUESTS_RECOVERY tinyint NULL,
+	IS_NONCONCURRENT tinyint null,
+	REQUESTS_RECOVERY tinyint null,
 	primary key (SCHED_NAME, ENTRY_ID)
 ) engine InnoDB;
 
